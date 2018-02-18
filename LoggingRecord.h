@@ -2,7 +2,7 @@
  * LoggingRecord.h
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #ifndef LOGGINGRECORD_H_

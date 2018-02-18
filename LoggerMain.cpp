@@ -15,7 +15,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD     fdwReason, LPVOID    lpvReserv
 			std::cerr<<"Logger have been started successfully\n";
 			break;
 		case DLL_PROCESS_DETACH:
-
 			std::cerr<<"Logger have been stopped successfully\n";
 			break;
 	}

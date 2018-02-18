@@ -2,7 +2,7 @@
  * LoggingRecord.cpp
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #include "LoggingRecord.h"

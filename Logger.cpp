@@ -2,7 +2,7 @@
  * Logger.cpp
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #include "Logger.h"
@@ -13,18 +13,21 @@ Logger::Logger(std::string& aFname):fname(aFname) {
 	HANDLE file = createFile();
 	CloseHandle(file);
 	endFlag = CreateEvent(NULL,FALSE,FALSE,NULL);
-	threadCompleted = CreateEvent(NULL,FALSE,FALSE,NULL);
+//	threadCompleted = CreateEvent(NULL,FALSE,FALSE,NULL);
 	in_progress = 1;
 	_beginthreadex(NULL,0,loggingThread,this,0,NULL);
 }
 
 Logger::~Logger() {
-//	CloseHandle(file);
+	printf("Logger dtor\n");
 	CloseHandle(request);
+	CloseHandle(endFlag);
+//	CloseHandle(threadCompleted);
 	DeleteCriticalSection(&c_section);
 }
 
 void Logger::log(std::string& tag, std::string& msg) {
+	printf("LOgger::Log enter tag=%s, msg=%s\n",tag.c_str(),msg.c_str());
 	EnterCriticalSection(&c_section);
 	time_t cur_time = time(NULL);
 	log_queue.push(new LoggingRecord(tag,msg,cur_time,this));
@@ -40,6 +43,7 @@ void Logger::logPtr(std::string& tag, std::string& msg, unsigned ptr) {
 }
 
 void Logger::writeLog(std::string& tag, std::string& msg, time_t logTime) {
+	printf("Logger::writeLog enter tag=%s msg=%s time=%ld\n",tag.c_str(),msg.c_str(),logTime);
 	char st[MAX_PATH];
 	HANDLE file;
 	time_t curTime = logTime;
@@ -67,26 +71,46 @@ HANDLE Logger::openFile() {
 }
 
 HANDLE Logger::getHandle(unsigned disposition) {
-	return CreateFile(fname.c_str(),FILE_APPEND_DATA,0,NULL,disposition,FILE_FLAG_OVERLAPPED,NULL);
+//	return CreateFile(fname.c_str(),FILE_APPEND_DATA,0,NULL,disposition,FILE_FLAG_OVERLAPPED,NULL);
+	return CreateFile(fname.c_str(),FILE_APPEND_DATA,0,NULL,disposition,0,NULL);
 }
 
 void Logger::writeToFile(HANDLE file, unsigned char* buf, unsigned len) {
 	static OVERLAPPED ovl;
-	HANDLE events[2]={file,endFlag};
+	unsigned long bytesWritten;
+//	HANDLE events[2]={file,endFlag};
+	printf("Logger::writeToFile enter\n");
 	ovl.Offset = -1;
 	ovl.OffsetHigh = -1;
-	WriteFileEx(file,buf,len,&ovl,NULL);
+//	WriteFileEx(file,buf,len,&ovl,NULL);
+	WriteFile(file,buf,len,&bytesWritten,&ovl);
+	printf("Logger::writeToFile pt1\n");
+	/*
 	unsigned result = WaitForMultipleObjectsEx(2,events,FALSE,INFINITE,TRUE),index;
 	index = result - WAIT_OBJECT_0;
+	*/
+	WaitForSingleObjectEx(file,INFINITE,TRUE);
+	printf("Logger::writeToFile pt2 \n");
+//	printf("Logger::writeToFile pt2 index=%d\n",index);
+	/*
 	if (index == END_FLAG_INDEX)
 		CancelIo(file);
+		*/
+	printf("Logger::writeToFile pt3\n");
 	CloseHandle(file);
+	printf("Logger::writeToFile exit\n");
 }
 
 void Logger::stop() {
 
 	in_progress = 0;
-	SignalObjectAndWait(endFlag,threadCompleted,INFINITE,TRUE);
+//	printf("Logger::stop endFlag=%p threadCompleted=%p\n",endFlag,threadCompleted);
+//	printf("Logger::stop endFlag=%p \n",endFlag);
+	SetEvent(endFlag);
+//	printf("Logger:stop pt1\n");
+//	WaitForSingleObjectEx(threadCompleted,INFINITE,TRUE);
+//	SignalObjectAndWait(endFlag,threadCompleted,INFINITE,TRUE);
+//	printf("Logger:stop  exit\n");
 }
 
 LoggingRecord* Logger::getFirst() {
@@ -107,20 +131,27 @@ unsigned Logger::logThread() {
 	unsigned result;
 	HANDLE events[2] =  {request,endFlag};
 	LoggingRecord* ptr;
+	printf("logThread enter\n");
 	for(;in_progress;) {
 		result = WaitForMultipleObjectsEx(2,events,FALSE,INFINITE,TRUE);
+		printf("logThread after WaitForMultipleObjectsEx result=%d\n",result);
 		if (result == END_FLAG_INDEX)
 			in_progress = 0;
 		else
 			if (!(result)) {
+				printf("logThread pt1\n");
 				for (;(!(log_queue.empty()));) {
+					printf("logThread pt2\n");
 					ptr = getFirst();
+					printf("logThread pt3 ptr=%p\n",ptr);
 					(*ptr).writeLog();
 					removeFirst();
 				}
 
 			}
 	}
-	SetEvent(threadCompleted);
+	printf("logThread before SetEvent\n");
+//	SetEvent(threadCompleted);
+	printf("logThread exit\n");
 	return 0;
 }

@@ -2,12 +2,12 @@
  * LoggerEngine.h
  *
  *  Created on: 26 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #ifndef LOGGERENGINE_H_
 #define LOGGERENGINE_H_
-
+#ifdef __cplusplus
 #include <string>
 
 class LoggerEngine {
@@ -19,5 +19,6 @@ public:
 	virtual void logString(std::string& tag, std::string msg, std::string& msg2) = 0;
 };
 
+#endif
 
 #endif /* LOGGERENGINE_H_ */

@@ -2,7 +2,7 @@
  * LoggerTypes.h
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #ifndef LOGGERTYPES_H_

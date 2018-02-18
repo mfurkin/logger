@@ -2,7 +2,7 @@
  * LoggerList.h
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #ifndef LOGGERLIST_H_
@@ -26,6 +26,13 @@ private:
 	std::map<std::string,Logger*> loggers;
 	CRITICAL_SECTION c_section;
 };
+/*
+#ifdef __cplusplus__
+#define EXTERN extern "C"
+#else
+#define EXTERN extern
+#endif
+*/
 extern "C" void __declspec(dllexport) createLogger(const char* name, const char* fname);
 extern "C" int __declspec(dllexport) log(const char* loggerName, const char* tag, const char* msg);
 extern "C" int __declspec(dllexport) logPtr(const char* loggerName, const char* tag, const char* msg, unsigned ptr);

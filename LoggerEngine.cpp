@@ -6,13 +6,7 @@
  */
 
 #include "LoggerEngine.h"
-/*
-LoggerEngine::LoggerEngine() {
-}
 
-LoggerEngine::~LoggerEngine() {
-}
-*/
 
 
 

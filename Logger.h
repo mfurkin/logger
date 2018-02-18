@@ -2,7 +2,7 @@
  * Logger.h
  *
  *  Created on: 22 дек. 2017 г.
- *      Author: Алёна
+ *
  */
 
 #ifndef LOGGER_H_
@@ -42,7 +42,8 @@ private:
 	HANDLE request;//,file;
 	std::queue<LoggingRecord*> log_queue;
 	int in_progress;
-	HANDLE endFlag,threadCompleted;
+	HANDLE endFlag;
+//	,threadCompleted;
 };
 
 #endif /* LOGGER_H_ */
